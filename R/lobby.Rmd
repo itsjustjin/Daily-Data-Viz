@@ -1,0 +1,35 @@
+---
+title: "ch3"
+author: "Jin Chen"
+date: "7/24/2020"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(gapminder)
+library(RSocrata)
+
+
+#set the public URL for the data set 
+url <- "https://data.pa.gov/Government-Efficiency-Citizen-Engagement/Lobbying-Disclosure-Data-2017-State/wbm6-mh8t"
+
+#call the API using RSocrata
+lobby_raw <- read.socrata(url)
+
+#show the first few obs
+head(lobby_raw)
+
+
+```
+
+```{r}
+p <- ggplot(data = lobby_raw)
+
+p <- ggplot(data = lobby_raw,
+            mapping = aes(x = total_indirect_cost,
+                          y = total_direct_costs))
+
+p + geom_point()
+```
+

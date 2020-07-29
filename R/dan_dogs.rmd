@@ -1,0 +1,107 @@
+---
+title: "Who let the Dogs out?"
+author: "Jin Chen"
+date: "7/24/2020"
+output: html_document
+---
+
+#Purpose
+To analyze a dataset from PA gov on dangerous dog incidents from 1996 to 2020.
+
+#Content
+I will use the RSocrata package to import the data.
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(RSocrata)
+library(GGally)
+library(ggthemes)
+library(gghighlight)
+
+#set the public URL for the data set 
+url <- "https://data.pa.gov/Public-Safety/Dangerous-Dogs-1996-Current-County-Agriculture/3fcn-e5dk"
+
+#call the API using RSocrata
+dan_dogs_raw <- read.socrata(url)
+
+#show the first few obs
+head(dan_dogs_raw)
+
+```
+
+#Structure
+I create a separate df from the raw data. I rename a column to make it more accessible. Then I find the count of incidents that happened in each county. 
+
+```{r}
+dan_dogs_county <- dan_dogs_raw %>% 
+  rename(county = county_description) %>% 
+  group_by(county) %>% 
+  summarize(count = n()) %>% 
+  select(county, count) %>% 
+  mutate(county = fct_reorder(county, count)) %>% 
+  arrange(desc(count)) %>% 
+  top_n(10)
+
+
+dan_dogs_county <- dan_dogs %>% 
+  mutate(county_highlight =
+           ifelse(county == "ALLEGHENY",
+                  "Allegheny",
+                  "Other Counties"))
+
+#by county
+dan_dogs_year <- dan_dogs_raw %>% 
+  mutate( year = lubridate::year(file_date)) %>% 
+  group_by(year) %>% 
+  summarize(count = n()) %>% 
+  filter(year != 2020)
+
+```
+#Formatting
+```{r}
+#by county
+p <- ggplot(data = dan_dogs_county,
+            mapping = aes(x = county,
+                          y = count))
+p + geom_col(aes(fill = county_highlight)) +
+    coord_flip() +
+    theme_tufte() +
+    theme(legend.position = "none") +
+    scale_fill_manual(values = c("dark blue", "light grey")) +
+    labs(title = "Who Let the Dogs Out?",
+       caption = "Data from 1996 - 2020",
+       y = "Dangerous Dog Incidents",
+       x = "") +
+    theme(plot.title = element_text(hjust = 0.5))
+
+
+#by year
+p2 <- ggplot(data = dan_dogs_year,
+             mapping = aes(x = year,
+                           y = count))
+p2 + geom_line() +
+  theme_tufte()
+
+```
+
+Thus conclude today's daily data visualization!
+
+```{r}
+dan_dogs <- dan_dogs_raw %>% 
+  rename(county = county_description) %>% 
+  mutate(year = lubridate::year(file_date)) %>%
+  group_by(county, year) %>% 
+  summarize(count = n()) %>% 
+  filter(year != 2020)
+
+
+p2 <- ggplot(data = dan_dogs,
+             mapping = aes(x = year,
+                           y = count,
+                           group = county))
+p2 + geom_line(aes(color = county)) +
+  theme_tufte() +
+  gghighlight(max(count) > 30, use_direct_label = FALSE)
+```
+

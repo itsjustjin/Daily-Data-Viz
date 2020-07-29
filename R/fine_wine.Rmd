@@ -1,0 +1,55 @@
+---
+title: "ch3"
+author: "Jin Chen"
+date: "7/24/2020"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(gapminder)
+library(RSocrata)
+
+
+#set the public URL for the data set 
+url <- "https://data.pa.gov/dataset/Fine-Wine-Good-Spirits-Retail-Stores-Sales-by-Coun/fhz7-8ncd"
+
+#call the API using RSocrata
+fine_raw <- read.socrata(url)
+
+#show the first few obs
+head(fine_raw)
+
+
+```
+
+```{r}
+p <- ggplot(data = fine_raw)
+
+p <- ggplot(data = fine_raw,
+            mapping = aes(x = fiscal_year,
+                          y = sales))
+
+p + geom_point()
+
+str(fine_raw)
+```
+
+```{r}
+fine18df <- fine_raw %>% 
+  group_by(county, fiscal_year) %>% 
+  select(county, sales) %>% 
+  filter(fiscal_year == "2018-19") %>% 
+  arrange(desc(sales)) %>% 
+  top_n(n = 10, wt = sales)
+  
+ggplot(fine18df,
+       aes(x = county, y = sales)) +
+  geom_col()
+
+
+top_n(fine18df, n = 10, sales) %>%
+          ggplot(., aes(x=county, y=sales))+
+              geom_bar(stat='identity')
+```
+
