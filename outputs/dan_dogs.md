@@ -1,14 +1,14 @@
 ---
 title: "Who let the Dogs out?"
 author: "Jin Chen"
-date: "7/24/2020"
+date: "7/30/2020"
 output: github_document
 ---
 
-#Purpose
+# Purpose
 To answer the question "Which county has the most dangerous dog incidents in PA?" by analyzing a dataset from the Pennsylvania government on dangerous dog incidents from 1996 to 2019.
 
-#Content
+# Content
 I will use the RSocrata package to import the data.
 
 
@@ -19,29 +19,6 @@ library(RSocrata)
 library(ggthemes)
 library(ezknitr)
 
-ezknit(file = "R/dan_dogs.Rmd", out_dir = "outputs/", keep_html = FALSE, fig_dir = "figures")
-```
-
-```
-## Error in parse_block(g[-1], g[1], params.src, markdown_mode): Duplicate chunk label 'Dangerous Dog Incidents Graph', which has been used for the chunk:
-## #by county
-## p <- ggplot(data = dan_dogs_county,
-##             mapping = aes(x = county,
-##                           y = count))
-## p + geom_col(aes(fill = county_highlight)) +
-##     coord_flip() +
-##     theme_tufte() +
-##     theme(legend.position = "none") +
-##     scale_fill_manual(values = c("dark blue", "light grey")) +
-##     labs(title = "Who Let the Dogs Out?",
-##        caption = "Data from 1996 - 2019",
-##        y = "Dangerous Dog Incidents",
-##        x = "") +
-##     theme(plot.title = element_text(hjust = 0.5)) +
-##     geom_text(aes(label = count), vjust = 0, hjust = -0.5, size = 3)
-```
-
-```r
 #set the public URL for the data set 
 url <- "https://data.pa.gov/Public-Safety/Dangerous-Dogs-1996-Current-County-Agriculture/3fcn-e5dk"
 
@@ -90,7 +67,7 @@ head(dan_dogs_raw)
 ## 6 POINT (-75.450961 40.002585)
 ```
 
-#Structure
+# Structure
 I create a separate df from the raw data. I rename a column to make it more accessible. Then I find the count of incidents that happened in each county. 
 
 
@@ -120,7 +97,7 @@ dan_dogs_county <- dan_dogs_county %>%
                   "Allegheny",
                   "Other Counties"))
 ```
-#Formatting
+# Formatting
 
 ```r
 #by county
@@ -141,7 +118,31 @@ p + geom_col(aes(fill = county_highlight)) +
 ```
 
 ![plot of chunk Dangerous Dog Incidents Graph](figures/Dangerous Dog Incidents Graph-1.png)
-#Conclusion
+
+
+```r
+ezknit(file = "R/dan_dogs.Rmd", out_dir = "outputs/", keep_html = FALSE, fig_dir = "figures")
+```
+
+```
+## Error in parse_block(g[-1], g[1], params.src, markdown_mode): Duplicate chunk label 'Load Data', which has been used for the chunk:
+## library(tidyverse)
+## library(ggplot2)
+## library(RSocrata)
+## library(ggthemes)
+## library(ezknitr)
+## 
+## #set the public URL for the data set 
+## url <- "https://data.pa.gov/Public-Safety/Dangerous-Dogs-1996-Current-County-Agriculture/3fcn-e5dk"
+## 
+## #call the API using RSocrata
+## dan_dogs_raw <- read.socrata(url)
+## 
+## #show the first few obs
+## head(dan_dogs_raw)
+```
+
+# Conclusion
 
 Thus conclude today's daily data visualization! We have found that the PA county with the most dangerous dog incidents is Allegheny followed by York and Westmoreland with Bucks closely behind. 
 

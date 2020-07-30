@@ -5,10 +5,10 @@ date: "7/30/2020"
 output: github_document
 ---
 
-#Purpose
+# Purpose
 To answer the question "Which county has the most dangerous dog incidents in PA?" by analyzing a dataset from the Pennsylvania government on dangerous dog incidents from 1996 to 2019.
 
-#Content
+# Content
 I will use the RSocrata package to import the data.
 
 ```{r Load Data}
@@ -29,7 +29,7 @@ head(dan_dogs_raw)
 
 ```
 
-#Structure
+# Structure
 I create a separate df from the raw data. I rename a column to make it more accessible. Then I find the count of incidents that happened in each county. 
 
 ```{r Table Structure}
@@ -54,7 +54,7 @@ dan_dogs_county <- dan_dogs_county %>%
 
 
 ```
-#Formatting
+# Formatting
 ```{r Dangerous Dog Incidents Graph}
 #by county
 p <- ggplot(data = dan_dogs_county,
@@ -78,7 +78,7 @@ ezknit(file = "R/dan_dogs.Rmd", out_dir = "outputs/", keep_html = FALSE, fig_dir
 
 ```
 
-#Conclusion
+# Conclusion
 
 Thus conclude today's daily data visualization! We have found that the PA county with the most dangerous dog incidents is Allegheny followed by York and Westmoreland with Bucks closely behind. 
 
