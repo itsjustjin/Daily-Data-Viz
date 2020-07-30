@@ -16,7 +16,6 @@ library(tidyverse)
 library(ggplot2)
 library(RSocrata)
 library(ggthemes)
-library(ezknitr)
 
 #set the public URL for the data set 
 url <- "https://data.pa.gov/Public-Safety/Dangerous-Dogs-1996-Current-County-Agriculture/3fcn-e5dk"
@@ -71,11 +70,6 @@ p + geom_col(aes(fill = county_highlight)) +
        x = "") +
     theme(plot.title = element_text(hjust = 0.5)) +
     geom_text(aes(label = count), vjust = 0, hjust = -0.5, size = 3)
-```
-
-```{r Knit Output}
-ezknit(file = "R/dan_dogs.Rmd", out_dir = "outputs/", keep_html = FALSE, fig_dir = "figures")
-
 ```
 
 # Conclusion
