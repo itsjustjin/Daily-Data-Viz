@@ -1,2 +1,2 @@
-# Daily-Data-Viz
+# Daily Data Viz
 Making one visualization a day

@@ -1,0 +1,35 @@
+---
+title: "Dangerous Dog Incidents in PA by Year"
+author: "Jin Chen"
+date: "7/30/2020"
+output: html_document
+---
+
+```{r}
+
+#by year
+dan_dogs_year <- dan_dogs_raw %>%
+  mutate( year = lubridate::year(file_date)) %>%
+  group_by(year) %>%
+  summarize(count = n()) %>%
+  filter(year != 2020)
+```
+
+
+```{r}
+dan_dogs <- dan_dogs_raw %>% 
+  rename(county = county_description) %>% 
+  mutate(year = lubridate::year(file_date)) %>%
+  group_by(county, year) %>% 
+  summarize(count = n()) %>% 
+  filter(year != 2020)
+
+
+p2 <- ggplot(data = dan_dogs,
+             mapping = aes(x = year,
+                           y = count,
+                           group = county))
+p2 + geom_line(aes(color = county)) +
+  theme_tufte() +
+  gghighlight(max(count) > 30, use_direct_label = FALSE)
+```

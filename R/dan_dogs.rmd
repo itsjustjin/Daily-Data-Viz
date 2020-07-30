@@ -1,23 +1,22 @@
 ---
 title: "Who let the Dogs out?"
 author: "Jin Chen"
-date: "7/24/2020"
-output: html_document
+date: "7/30/2020"
+output: github_document
 ---
 
 #Purpose
-To analyze a dataset from PA gov on dangerous dog incidents from 1996 to 2020.
+To answer the question "Which county has the most dangerous dog incidents in PA?" by analyzing a dataset from the Pennsylvania government on dangerous dog incidents from 1996 to 2019.
 
 #Content
 I will use the RSocrata package to import the data.
 
-```{r}
+```{r Load Data}
 library(tidyverse)
 library(ggplot2)
 library(RSocrata)
-library(GGally)
 library(ggthemes)
-library(gghighlight)
+library(ezknitr)
 
 #set the public URL for the data set 
 url <- "https://data.pa.gov/Public-Safety/Dangerous-Dogs-1996-Current-County-Agriculture/3fcn-e5dk"
@@ -33,33 +32,30 @@ head(dan_dogs_raw)
 #Structure
 I create a separate df from the raw data. I rename a column to make it more accessible. Then I find the count of incidents that happened in each county. 
 
-```{r}
+```{r Table Structure}
+#by county
 dan_dogs_county <- dan_dogs_raw %>% 
   rename(county = county_description) %>% 
+  mutate( year = lubridate::year(file_date)) %>% #create a year column
+  filter(year != 2020) %>% #filter out entries with year of 2020
   group_by(county) %>% 
-  summarize(count = n()) %>% 
+  summarize(count = n()) %>% #count the number of incidents in each county
   select(county, count) %>% 
-  mutate(county = fct_reorder(county, count)) %>% 
+  mutate(county = fct_reorder(county, count)) %>%  #order county by count for graphing purposes
   arrange(desc(count)) %>% 
   top_n(10)
 
-
-dan_dogs_county <- dan_dogs %>% 
+#Create a column to distinguish the #1 county of incidents with the rest. (could use gghighlight as an alternative)
+dan_dogs_county <- dan_dogs_county %>% 
   mutate(county_highlight =
            ifelse(county == "ALLEGHENY",
                   "Allegheny",
                   "Other Counties"))
 
-#by county
-dan_dogs_year <- dan_dogs_raw %>% 
-  mutate( year = lubridate::year(file_date)) %>% 
-  group_by(year) %>% 
-  summarize(count = n()) %>% 
-  filter(year != 2020)
 
 ```
 #Formatting
-```{r}
+```{r Dangerous Dog Incidents Graph}
 #by county
 p <- ggplot(data = dan_dogs_county,
             mapping = aes(x = county,
@@ -70,38 +66,20 @@ p + geom_col(aes(fill = county_highlight)) +
     theme(legend.position = "none") +
     scale_fill_manual(values = c("dark blue", "light grey")) +
     labs(title = "Who Let the Dogs Out?",
-       caption = "Data from 1996 - 2020",
+       caption = "Data from 1996 - 2019",
        y = "Dangerous Dog Incidents",
        x = "") +
-    theme(plot.title = element_text(hjust = 0.5))
+    theme(plot.title = element_text(hjust = 0.5)) +
+    geom_text(aes(label = count), vjust = 0, hjust = -0.5, size = 3)
+```
 
-
-#by year
-p2 <- ggplot(data = dan_dogs_year,
-             mapping = aes(x = year,
-                           y = count))
-p2 + geom_line() +
-  theme_tufte()
+```{r Knit Output}
+ezknit(file = "R/dan_dogs.Rmd", out_dir = "outputs/", keep_html = FALSE, fig_dir = "figures")
 
 ```
 
-Thus conclude today's daily data visualization!
+#Conclusion
 
-```{r}
-dan_dogs <- dan_dogs_raw %>% 
-  rename(county = county_description) %>% 
-  mutate(year = lubridate::year(file_date)) %>%
-  group_by(county, year) %>% 
-  summarize(count = n()) %>% 
-  filter(year != 2020)
+Thus conclude today's daily data visualization! We have found that the PA county with the most dangerous dog incidents is Allegheny followed by York and Westmoreland with Bucks closely behind. 
 
-
-p2 <- ggplot(data = dan_dogs,
-             mapping = aes(x = year,
-                           y = count,
-                           group = county))
-p2 + geom_line(aes(color = county)) +
-  theme_tufte() +
-  gghighlight(max(count) > 30, use_direct_label = FALSE)
-```
 
