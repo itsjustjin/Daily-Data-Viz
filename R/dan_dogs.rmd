@@ -60,7 +60,7 @@ p <- ggplot(data = dan_dogs_county,
             mapping = aes(x = county,
                           y = count))
 p + geom_col(aes(fill = county_highlight)) +
-    coord_flip() +
+    coord_flip(clip = "off") + #prevent text from cutting off on the edges
     theme_tufte() +
     theme(legend.position = "none") +
     scale_fill_manual(values = c("dark blue", "light grey")) +
