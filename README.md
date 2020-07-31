@@ -10,4 +10,5 @@ I look at dangerous dog incidents in PA counties from 1996 - 2019
 **[7.31.2020 - Pennsylvania Lobbying Disclosure Data 2017](https://github.com/simplyjin/Daily-Data-Viz/blob/master/outputs/lobby.md)**
 
 I look at lobbying expenditures in PA in 2017 by subject. 
+
 ![image of final output](https://github.com/simplyjin/Daily-Data-Viz/blob/master/outputs/lobby_files/figure-gfm/Graph%20It-1.png)
