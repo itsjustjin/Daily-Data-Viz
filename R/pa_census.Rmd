@@ -1,0 +1,119 @@
+---
+title: "PA Median Income By Town Map"
+author: "Jin Chen"
+date: "8/2/2020"
+output: github_document
+---
+# Purpose
+This is my first attempt into spatial mapping in R. It is inspired by Timo Grossenbacher's popular thematic map of Switzerland, though much more simplified to my current skill level. (His map and guide can be [found here](https://timogrossenbacher.ch/2019/04/bivariate-maps-with-ggplot2-and-sf/))
+
+I will be mapping median income by county in PA using 2018 US Census data from the American Community Survey (ACS). The ACS is that largest household urvey administered by the Census Bureau that collects a variety of data including income, educational attainment, employment, citizenship and much much more.
+
+```{r Load Libraries, message=FALSE, warning=FALSE}
+library(tidyverse) 
+library(sf) # spatial data handling
+library(viridis) # viridis color scale
+library(tidycensus) #for income data
+library(ggplot2)
+```
+
+# Content
+I gather all median income by county as well as by town. Although I'll be mapping by town, I will also need geographic information of county boundaries. Geographic information can also be found by using the tigris package, but I found that staying consistent with the source of the information prevents mapping mismatches.
+
+The ACS has several types of tables by 1 or 5 year periods. I will be using 5 year estimates. Although the data may not represent the most current measures, it will provide the most precision for small population areas as well as the largest sample size.
+
+```{r Gather Census Data, message=FALSE, warning=FALSE, results = 'hide'}
+census_api_key("c2a8115f76b601f17a99a46abeae2fb2d10abcd7")
+
+pa <- get_acs(geography = "county",
+              variables = c(medincome = "B19013_001"),
+              state = "PA",
+              year = 2018,
+              geometry = TRUE)
+
+pa2 <- get_acs(geography = "county subdivision",
+              variables = c(medincome = "B19013_001"),
+              state = "PA",
+              year = 2018,
+              geometry = TRUE)
+```
+
+```{r}
+windowsFonts(`Roboto Condensed` = windowsFont("Roboto Condensed"))
+
+#map theme by Timo Grossenbacher with my edits
+theme_map <- function(...) {
+  theme_minimal() +
+  theme(
+    text = element_text(family = "Roboto Condensed", color = "#22211d"),
+    axis.line = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    # panel.grid.minor = element_line(color = "#ebebe5", size = 0.2),
+    panel.grid.major = element_line(color = "#ebebe5", size = 0.2),
+    panel.grid.minor = element_blank(),
+    plot.background = element_rect(fill = "#f5f5f2", color = NA), 
+    panel.background = element_rect(fill = "#f5f5f2", color = NA), 
+    legend.background = element_rect(fill = "#f5f5f2", color = NA),
+    panel.border = element_blank(),
+    ...
+  )
+}
+
+```
+# Formatting
+The sf package automatically detects the column geography in the dataset. All that's left to do is graph the boundary lines for each township and then add a gradient for median incomes.
+
+
+```{r Graph It}
+p <- pa2 %>%
+  ggplot() +
+  geom_sf(aes(fill = estimate), color = NA) +
+  geom_sf(data = pa, fill = "transparent", color = "white", size = 1) +
+  scale_fill_viridis_c(
+      option = "magma", 
+      direction = 1, 
+      name = "Median Income",
+      na.value = "grey60",
+      trans = "log",
+      # oob = scales::squish, #we use squish to keep our data outside of the limits, but fill as the closest break
+      # limits = c(minVal2, maxVal2),
+      breaks = c(22000, 60000, 162000),
+      labels = scales::dollar_format(),
+      guide = guide_colorbar(direction = "horizontal",
+                             barheight = unit(2, units = "mm"),
+                             barwidth = unit(100, units = "mm"),
+                             raw.ulim = F,
+                             title.position = 'top',
+                             title.hjust = 0.5,
+                             label.hjust = 0.5)) +
+  coord_sf() +
+  theme_map(legend.position = "bottom") +
+  theme(plot.subtitle = element_text(face = "italic"))+
+  labs(x = NULL, 
+       y = NULL, 
+       title = "Pennsylvania Regional Income Levels", 
+       subtitle = "Median Income by Town (5 year estimate), 2018", 
+       caption = " Data: US Census ACS, 2018")
+p
+```
+
+# Reflection
+This project took significantly longer than I expected, partially because I wanted to replicate the raster relief in Timo's map using the mountains in PA and partially because I would tinker with the gradient breaks, labels, and other aesthetics. I eventually decided against doing the raster and to settle on a minimally viable gradient break that would be understandable. 
+For future iterations of this project, I would definitely attempt to spend more time figuring out a method for the hill reliefs, add map interactivity (hovering to see county names and income, toggling different income levels), further adjust the break levels, and add points for biggest cities (such as Philadelphia, Pittsburgh, and Harrisburg)
+
+# Links
+[Timo Grossenbacher's original 2016 thematic map guide](https://timogrossenbacher.ch/2016/12/beautiful-thematic-maps-with-ggplot2-only/)
+
+[Timo's updated 2019 bivariate guide](https://timogrossenbacher.ch/2019/04/bivariate-maps-with-ggplot2-and-sf/)
+
+[A similar map using Texas Income](https://wilkelab.org/practicalgg/articles/Texas_income.html)
+
+[A git user's attempt at a similar map using Spain](https://github.com/manugarri/spain_census_map)
+
+[An interactive map by Joshua Kunst inspired by Timo's](https://jkunst.com/blog/posts/2017-01-05-thematic-interactive-map/)
+
+[A good reference for drawing maps using sf](https://www.r-spatial.org/r/2018/10/25/ggplot2-sf-2.html)
