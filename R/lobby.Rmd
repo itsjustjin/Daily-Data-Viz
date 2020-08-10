@@ -61,7 +61,7 @@ p +
   scale_y_continuous(labels = scales::label_number_si(accuracy = 1, prefix = "$")) +  #displays cost in millions
   coord_flip(clip = "off") +
   theme_light() +
-  labs(title = "2017 Pennsylavnia Lobbying Expenses by Subject",
+  labs(title = "2017 Pennsylvania Lobbying Expenses by Subject",
        caption = "Data from opendataPA",
        x = "",
        y = "") +
