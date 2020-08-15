@@ -23,7 +23,7 @@ I gather all median income by county as well as by town. Although I'll be mappin
 The ACS has several types of tables by 1 or 5 year periods. I will be using 5 year estimates. Although the data may not represent the most current measures, it will provide the most precision for small population areas as well as the largest sample size.
 
 ```{r Gather Census Data, message=FALSE, warning=FALSE, results = 'hide'}
-census_api_key("c2a8115f76b601f17a99a46abeae2fb2d10abcd7")
+Sys.getenv("CENSUS_KEY")
 
 pa <- get_acs(geography = "county",
               variables = c(medincome = "B19013_001"),
